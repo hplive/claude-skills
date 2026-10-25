@@ -1,0 +1,9 @@
+{
+  "name": "html-video-engine",
+  "private": true,
+  "type": "module",
+  "description": "Render an HTML scene frame by frame with Chrome and encode it with ffmpeg",
+  "dependencies": {
+    "puppeteer-core": "^24.0.0"
+  }
+}

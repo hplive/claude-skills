@@ -1,0 +1,69 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>example scene</title>
+<style>
+  /* The page IS the frame: fixed 1080x1920 stage, no scrollbars, no CSS animations or timers.
+     Every frame is a pure function of time: window.render(t). That is what makes it renderable and repeatable. */
+  html, body { margin: 0; background: #0B1124; overflow: hidden; }
+  #stage { position: relative; width: 1080px; height: 1920px; overflow: hidden; font-family: -apple-system, "Helvetica Neue", Arial, sans-serif; color: #fff;
+    background: radial-gradient(120% 80% at 50% 30%, #1B2A6B 0%, #0B1124 70%); }
+  .line { position: absolute; left: 90px; right: 90px; text-align: center; font-weight: 900; letter-spacing: -.02em; line-height: 1.02; will-change: transform, opacity; }
+  #hook { top: 380px; font-size: 118px; }
+  #big  { top: 800px; font-size: 300px; color: #8AA2FF; }
+  #cap  { top: 1130px; font-size: 64px; font-weight: 700; color: #C9D3FF; }
+  #end  { top: 700px; font-size: 130px; }
+  #url  { top: 1420px; font-size: 56px; font-weight: 700; color: #FFB52E; }
+  .guides { position: absolute; left: 0; right: 0; background: rgba(255,0,0,.25); z-index: 99; }
+</style>
+</head>
+<body>
+<div id="stage">
+  <div class="line" id="hook">Your hook goes here, on frame one.</div>
+  <div class="line" id="big">0</div>
+  <div class="line" id="cap">people already know.</div>
+  <div class="line" id="end">Call to action.</div>
+  <div class="line" id="url">example.com</div>
+</div>
+<script src="timeline.js"></script>
+<script>
+(() => {
+  const T = globalThis.TL, $ = (id) => document.getElementById(id);
+  const clamp = (x, a = 0, b = 1) => Math.min(b, Math.max(a, x));
+  const seg = (t, a, b) => clamp((t - a) / (b - a));            // 0..1 progress between two instants
+  const eOut = (k) => 1 - Math.pow(1 - k, 3), eIn = (k) => k * k * k;
+  const set = (el, o, tf) => { el.style.opacity = o.toFixed(3); if (tf) el.style.transform = tf; };
+
+  window.render = function (t) {
+    // hook: visible from frame 0, slams out at the boom
+    const hookOut = seg(t, T.boom - 0.15, T.boom);
+    set($("hook"), 1 - hookOut, `translateY(${(-60 * eIn(hookOut)).toFixed(1)}px) scale(${(1 + 0.08 * hookOut).toFixed(3)})`);
+    // counter: counts 0 -> 12 between T.count[0] and T.count[1]
+    const k = eOut(seg(t, T.count[0], T.count[1]));
+    $("big").textContent = Math.round(12 * k);
+    set($("big"), seg(t, T.count[0] - 0.2, T.count[0]) * (1 - seg(t, T.end - 0.2, T.end)), `scale(${(0.9 + 0.1 * k).toFixed(3)})`);
+    set($("cap"), seg(t, T.count[0] + 0.3, T.count[0] + 0.7) * (1 - seg(t, T.end - 0.2, T.end)));
+    // end card
+    const e = eOut(seg(t, T.end, T.end + 0.5));
+    set($("end"), e, `translateY(${(40 * (1 - e)).toFixed(1)}px)`);
+    set($("url"), seg(t, T.end + 0.4, T.end + 0.8));
+  };
+
+  window.ready = (async () => {
+    await document.fonts.ready;                                   // wait for web fonts before the first frame
+    if (new URLSearchParams(location.search).has("guides")) {     // Instagram safe zones: keep text out of the red bands
+      ["top:0;height:250px", "bottom:0;height:340px"].forEach((s) => { const g = document.createElement("div"); g.className = "guides"; g.style.cssText = s; $("stage").appendChild(g); });
+    }
+    const q = new URLSearchParams(location.search), t0 = parseFloat(q.get("t") || "0");
+    window.render(t0);
+    if (q.has("play")) {                                          // open scene.html?play in a browser to preview it live (loops)
+      const st = performance.now() - t0 * 1000;
+      (function loop() { window.render(((performance.now() - st) / 1000) % T.duration); requestAnimationFrame(loop); })();
+    }
+    return true;
+  })();
+})();
+</script>
+</body>
+</html>
