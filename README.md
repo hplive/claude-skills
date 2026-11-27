@@ -10,6 +10,8 @@ Skills for [Claude Code](https://claude.com/claude-code). Each folder is one ski
 
 - **brand-logo-exploration** — explore, test and apply a logo: several genuinely different concepts, a small-size test sheet, an honest similarity check (with what is *not* verified marked as such), then application to the app icon, launch screen and watch complication. Includes a CoreGraphics template for exporting transparent PNGs from SVG geometry.
 
+- **idea-crowd-sim** — stress-test an idea with a simulated crowd: dozens of varied personas argue about it on two fake social networks (a long thread and short posts), then a report says who liked it, who hated it, why, and which angles nobody had thought of. A light, no-extra-cost take on the MiroFish/OASIS method, run with parallel subagents. For finding angles, not for deciding: every voice is the same model. No dependencies.
+
 ## Install
 
 Claude Code picks up any skill folder it finds in one of these places. No command needed.
@@ -21,6 +23,7 @@ git clone https://github.com/hplive/claude-skills.git /tmp/claude-skills
 mkdir -p ~/.claude/skills
 cp -R /tmp/claude-skills/ig-human ~/.claude/skills/
 cp -R /tmp/claude-skills/brand-logo-exploration ~/.claude/skills/
+cp -R /tmp/claude-skills/idea-crowd-sim ~/.claude/skills/
 cp -R /tmp/claude-skills/html-video ~/.claude/skills/   # then: cd ~/.claude/skills/html-video/engine && npm install
 ```
 
